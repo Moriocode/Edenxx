@@ -1,0 +1,29 @@
+# dependencies
+node_modules/
+
+# next.js / build output
+.next/
+out/
+build/
+dist/
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# local env
+.env
+.env*.local
+!.env.example
+
+# vendored local services keep their own history
+services/doujin-api/
+
+# python service artifacts
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# os
+.DS_Store
