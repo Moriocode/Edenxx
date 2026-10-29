@@ -2,6 +2,7 @@ import type { SourceId } from "@/lib/source";
 import { sourceChain, sourceFor, hdporncomicsHealth } from "@/lib/source";
 import { hentaifoxHealth } from "@/lib/sources/hentaifox";
 import { ehHealth } from "@/lib/sources/ehentai";
+import { hitHealth } from "@/lib/sources/hitomi";
 
 export type SourceAttempt<T> = {
   source: SourceId;
@@ -71,7 +72,13 @@ export async function chainHealth() {
       let url = "";
 
       try {
-        if (id === "hentaifox") {
+        if (id === "hitomi") {
+          const h = await hitHealth();
+          ok = h.ok;
+          status = h.status;
+          error = h.error;
+          url = h.url;
+        } else if (id === "hentaifox") {
           const h = await hentaifoxHealth();
           ok = h.ok;
           status = h.status;

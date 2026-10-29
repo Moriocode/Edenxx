@@ -1,6 +1,9 @@
+import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import AdSlot, { AD_EVERY } from "@/components/AdSlot";
 import ComicCard from "@/components/ComicCard";
+import LoadableImage from "@/components/LoadableImage";
 import Notice from "@/components/Notice";
 import { getComic } from "@/lib/source";
 
@@ -54,12 +57,12 @@ export default async function ComicPage({ params }: { params: Promise<{ slug: st
         <div className="space-y-3">
           <div className="overflow-hidden rounded-xl border border-line bg-black">
             {comic.cover ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <LoadableImage
                 src={comic.cover}
                 alt={comic.title}
-                referrerPolicy="no-referrer"
+                loading="eager"
                 className="w-full object-cover"
+                wrapperClassName="card-cover"
               />
             ) : (
               <div className="card-cover grid place-items-center text-4xl opacity-30">🦊</div>
@@ -143,23 +146,29 @@ export default async function ComicPage({ params }: { params: Promise<{ slug: st
           </h2>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
             {comic.images.map((src, i) => (
-              <Link
-                key={src}
-                href={`/read/${comic.slug}?page=${i + 1}`}
-                className="group relative overflow-hidden rounded-lg border border-line bg-black"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={src}
-                  alt={`Page ${i + 1}`}
-                  referrerPolicy="no-referrer"
-                  loading="lazy"
-                  className="h-full w-full object-cover opacity-85 transition group-hover:scale-105 group-hover:opacity-100"
-                />
-                <span className="absolute bottom-1 left-1 rounded bg-black/80 px-1.5 py-0.5 text-[10px] font-bold text-white/80">
-                  {i + 1}
-                </span>
-              </Link>
+              <Fragment key={src}>
+                <Link
+                  href={`/read/${comic.slug}?page=${i + 1}`}
+                  className="group relative overflow-hidden rounded-lg border border-line bg-black"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <LoadableImage
+                    src={src}
+                    alt={`Page ${i + 1}`}
+                    loading="lazy"
+                    className="h-full w-full object-cover opacity-85 transition group-hover:scale-105 group-hover:opacity-100"
+                    wrapperClassName="aspect-[3/4]"
+                  />
+                  <span className="absolute bottom-1 left-1 rounded bg-black/80 px-1.5 py-0.5 text-[10px] font-bold text-white/80">
+                    {i + 1}
+                  </span>
+                </Link>
+
+                {/* Ad slot between thumbnail rows: full-width band in the grid. */}
+                {(i + 1) % AD_EVERY.thumbs === 0 && i + 1 < comic.images.length ? (
+                  <AdSlot id={`thumbs-${i + 1}`} />
+                ) : null}
+              </Fragment>
             ))}
           </div>
         </section>

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import SourceHealth from "@/components/SourceHealth";
 import { CONTACT_EMAIL, SITE_NAME } from "@/lib/constants";
 
 const links = [
@@ -31,9 +30,6 @@ export default function Footer() {
             Contact
           </a>
 
-          <span className="ml-auto">
-            <SourceHealth />
-          </span>
         </div>
 
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">

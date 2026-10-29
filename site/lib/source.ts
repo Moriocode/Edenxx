@@ -1,4 +1,4 @@
-export const SOURCES = ["hentaifox", "ehentai", "hdporncomics"] as const;
+export const SOURCES = ["hitomi", "hentaifox", "ehentai", "hdporncomics"] as const;
 
 export type SourceId = (typeof SOURCES)[number];
 
@@ -41,9 +41,10 @@ export type Listing = {
 /**
  * Source selection.
  *
- * Keep the site on one source at a time until a second source is verified live
- * from this environment. The current default is the hdporncomics scraper path
- * that the rest of the app is already built around.
+ * The site runs a chain of sources and always starts from its head; if the
+ * head fails, the next one answers. The current default head is Hitomi
+ * (node-hitomi client, images proxied through our own origin), with HentaiFox,
+ * E-Hentai and hdporncomics behind it.
  */
 export function sourceFor(_id?: SourceId): SourceId {
   // The head of the chain is the active source. The hidden router demotes a
@@ -54,9 +55,10 @@ export function sourceFor(_id?: SourceId): SourceId {
 /**
  * Source order used for fallback.
  *
- * Defaults to HentaiFox (fast, direct CDN images), then E-Hentai (much larger
- * catalogue, proxied images), then hdporncomics. Override for testing with a
- * comma list, e.g. KITSUNE_SOURCE_ORDER=ehentai,hentaifox.
+ * Defaults to Hitomi (largest catalogue, images served via /api/hitomi/image),
+ * then HentaiFox (fast, direct CDN images), then E-Hentai (larger catalogue,
+ * proxied images), then hdporncomics. Override with a comma list, e.g.
+ * KITSUNE_SOURCE_ORDER=hentaifox,hitomi to put HentaiFox back in front.
  */
 export function sourceChain(): SourceId[] {
   const wanted = (process.env.KITSUNE_SOURCE_ORDER || "")
@@ -90,7 +92,8 @@ export async function sourceHealth(): Promise<{
   status?: number;
   error?: string;
 }> {
-  return hentaifoxHealth();
+  // Probe whichever source is currently answering, not a hardcoded one.
+  return sourceFor() === "hitomi" ? hitHealth() : hentaifoxHealth();
 }
 
 /**
@@ -193,15 +196,30 @@ export function searchComics(query: string, page = 1): Promise<Listing> {
  * which source in the chain produced them.
  */
 export async function getComic(pathOrUrl: string): Promise<ComicDetail> {
-  // Try the source the slug belongs to first, then the other one, so a card is
-  // still readable if the chain switched upstreams between listing and detail.
-  const order: SourceId[] = isEHentaiRef(pathOrUrl)
+  const problems: string[] = [];
+
+  // doujin-api is detail-only and config-gated: dx-<id> refs resolve on it
+  // while DOUJIN_API_URL is set, then fall through to the regular chain.
+  if (doujinEnabled() && isDoujinRef(pathOrUrl)) {
+    try {
+      return await doujinDetail(pathOrUrl);
+    } catch (err) {
+      problems.push(`doujin: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  // Try the source the slug belongs to first, then the rest of the chain, so a
+  // card is still readable if the chain switched upstreams between listing and
+  // detail. Hitomi refs lead; every other ref keeps its previous order with
+  // hitomi appended as the last fallback.
+  const base: SourceId[] = isEHentaiRef(pathOrUrl)
     ? ["ehentai", "hentaifox", "hdporncomics"]
     : isHentaiFoxRef(pathOrUrl)
       ? ["hentaifox", "ehentai", "hdporncomics"]
       : ["hdporncomics", "hentaifox", "ehentai"];
+  const head: SourceId = isHitomiRef(pathOrUrl) ? "hitomi" : base[0];
+  const order: SourceId[] = [...new Set([head, ...base, ...sourceChain()])];
 
-  const problems: string[] = [];
   for (const source of order) {
     try {
       const detail = await withBudget(
@@ -257,6 +275,15 @@ import { cachedHtml } from "@/lib/cache";
 import { noteFailure, noteSuccess, routeOrder } from "@/lib/source-routing";
 import { hfDetail, hfListPage, hfTagIndex, hentaifoxHealth, isHentaiFoxRef } from "@/lib/sources/hentaifox";
 import { ehDetail, ehListPage, ehTagSeeds, ehHealth, isEHentaiRef } from "@/lib/sources/ehentai";
+import {
+  hitDetail,
+  hitHealth,
+  hitListPage,
+  hitPopularTags,
+  hitTagIndex,
+  isHitomiRef,
+} from "@/lib/sources/hitomi";
+import { doujinDetail, doujinEnabled, isDoujinRef } from "@/lib/sources/doujin";
 
 const HD_BASE = "https://hdporncomics.com";
 const UA =
@@ -422,6 +449,7 @@ async function listing(
 }
 
 export function listPage(source: SourceId, basePath: string, page: number, query?: { s?: string }): Promise<Listing> {
+  if (source === "hitomi") return hitListPage(basePath, page, query);
   if (source === "hentaifox") return hfListPage(basePath, page, query);
   if (source === "ehentai") return ehListPage(basePath, page, query);
   return listing(basePath, page, query);
@@ -430,6 +458,7 @@ export function listPage(source: SourceId, basePath: string, page: number, query
 export async function getComicFor(source: SourceId, pathOrUrl: string): Promise<ComicDetail> {
   if (source === "hentaifox" || isHentaiFoxRef(pathOrUrl)) return hfDetail(pathOrUrl);
   if (source === "ehentai" || isEHentaiRef(pathOrUrl)) return ehDetail(pathOrUrl);
+  if (source === "hitomi" || isHitomiRef(pathOrUrl)) return hitDetail(pathOrUrl);
   return hdporncomicsDetail(pathOrUrl);
 }
 
@@ -487,6 +516,9 @@ async function hdporncomicsDetail(pathOrUrl: string): Promise<ComicDetail> {
 }
 
 export async function allTagsFor(source: SourceId): Promise<{ slug: string; label: string; count?: number }[]> {
+  if (source === "hitomi") {
+    return hitTagIndex(); // already sorted alphabetically
+  }
   if (source === "hentaifox") {
     const tags = await hfTagIndex();
     return tags.sort((a, b) => a.label.localeCompare(b.label));
@@ -509,6 +541,9 @@ export async function allTagsFor(source: SourceId): Promise<{ slug: string; labe
 }
 
 export async function popularTagsFor(source: SourceId, limit = 28): Promise<{ slug: string; count: number }[]> {
+  if (source === "hitomi") {
+    return hitPopularTags(limit);
+  }
   if (source === "hentaifox") {
     const tags = await hfTagIndex();
     return tags

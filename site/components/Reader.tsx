@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import AdSlot, { AD_EVERY } from "@/components/AdSlot";
+import LoadableImage from "@/components/LoadableImage";
 
 export default function Reader({
   title,
@@ -120,26 +122,35 @@ export default function Reader({
 
       <div className="mx-auto flex max-w-4xl flex-col items-center gap-1">
         {images.map((src, i) => (
-          <div
-            key={src}
-            data-page={i + 1}
-            ref={(el) => {
-              refs.current[i] = el;
-            }}
-            className="w-full scroll-mt-[120px]"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={src}
-              alt={`${title} — page ${i + 1}`}
-              referrerPolicy="no-referrer"
-              loading={i < 2 ? "eager" : "lazy"}
-              className="reader-img rounded-sm"
-            />
-            <div className="py-1 text-center text-[10px] font-semibold tracking-wide text-muted/50">
-              {i + 1} / {total}
+          <Fragment key={`${i}-${src}`}>
+            <div
+              data-page={i + 1}
+              ref={(el) => {
+                refs.current[i] = el;
+              }}
+              className="w-full scroll-mt-[120px]"
+            >
+              {/* Reserve a dark page-sized block with a spinner while the page
+                  streams in; it collapses to the image's natural height after. */}
+              <LoadableImage
+                src={src}
+                alt={`${title} — page ${i + 1}`}
+                loading={i < 2 ? "eager" : "lazy"}
+                className="reader-img rounded-sm"
+                wrapperClassName="w-full"
+                pendingClassName="min-h-[65vh] rounded-sm bg-[#101012]"
+              />
+              <div className="py-1 text-center text-[10px] font-semibold tracking-wide text-muted/50">
+                {i + 1} / {total}
+              </div>
             </div>
-          </div>
+
+            {/* Ad slot between reader pages; hidden on the final page so the
+                “You reached the end” block closes the comic cleanly. */}
+            {(i + 1) % AD_EVERY.reader === 0 && i + 1 < total ? (
+              <AdSlot id={`reader-${i + 1}`} variant="reader" />
+            ) : null}
+          </Fragment>
         ))}
       </div>
 

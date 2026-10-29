@@ -1,3 +1,5 @@
+import { Fragment } from "react";
+import AdSlot, { AD_EVERY } from "@/components/AdSlot";
 import ComicCard from "@/components/ComicCard";
 import TagRail from "@/components/TagRail";
 import Pager from "@/components/Pager";
@@ -42,7 +44,13 @@ export default function ListingView({
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
             {listing.cards.map((card, i) => (
-              <ComicCard key={card.url} card={card} priority={i < 5} />
+              <Fragment key={card.url}>
+                <ComicCard card={card} priority={i < 5} />
+                {/* Ad slot between cover rows: full-width so it forms its own band. */}
+                {(i + 1) % AD_EVERY.listing === 0 && i + 1 < listing.cards.length ? (
+                  <AdSlot id={`listing-${listing.page}-${i + 1}`} />
+                ) : null}
+              </Fragment>
             ))}
           </div>
         )}

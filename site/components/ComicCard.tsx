@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LoadableImage from "@/components/LoadableImage";
 import type { ComicCard as Card } from "@/lib/source";
 
 export default function ComicCard({ card, priority = false }: { card: Card; priority?: boolean }) {
@@ -9,13 +10,12 @@ export default function ComicCard({ card, priority = false }: { card: Card; prio
     >
       <div className="relative card-cover overflow-hidden bg-black">
         {card.cover ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <LoadableImage
             src={card.cover}
             alt={card.title}
-            referrerPolicy="no-referrer"
             loading={priority ? "eager" : "lazy"}
             className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.04]"
+            wrapperClassName="card-cover"
           />
         ) : (
           <div className="grid h-full w-full place-items-center text-3xl opacity-30">🦊</div>
