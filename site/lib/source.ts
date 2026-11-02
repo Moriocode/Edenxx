@@ -1,4 +1,4 @@
-export const SOURCES = ["hitomi", "hentaifox", "ehentai", "hdporncomics"] as const;
+export const SOURCES = ["nhentai", "hitomi", "hentaifox", "ehentai", "hdporncomics"] as const;
 
 export type SourceId = (typeof SOURCES)[number];
 
@@ -61,12 +61,15 @@ export function sourceFor(_id?: SourceId): SourceId {
  * KITSUNE_SOURCE_ORDER=hentaifox,hitomi to put HentaiFox back in front.
  */
 export function sourceChain(): SourceId[] {
+  // nhentai runs on an API key; without it, it simply drops out of the chain.
+  const pool = SOURCES.filter((id) => id !== "nhentai" || nhentaiEnabled());
+
   const wanted = (process.env.KITSUNE_SOURCE_ORDER || "")
     .split(",")
     .map((id) => id.trim())
-    .filter((id): id is SourceId => (SOURCES as readonly string[]).includes(id));
+    .filter((id): id is SourceId => (pool as readonly string[]).includes(id));
 
-  return wanted.length ? [...wanted, ...SOURCES.filter((id) => !wanted.includes(id))] : [...SOURCES];
+  return wanted.length ? [...wanted, ...pool.filter((id) => !wanted.includes(id))] : [...pool];
 }
 
 /**
@@ -93,7 +96,10 @@ export async function sourceHealth(): Promise<{
   error?: string;
 }> {
   // Probe whichever source is currently answering, not a hardcoded one.
-  return sourceFor() === "hitomi" ? hitHealth() : hentaifoxHealth();
+  const active = sourceFor();
+  if (active === "nhentai") return nhHealth();
+  if (active === "hitomi") return hitHealth();
+  return hentaifoxHealth();
 }
 
 /**
@@ -216,7 +222,9 @@ export async function getComic(pathOrUrl: string): Promise<ComicDetail> {
     ? ["ehentai", "hentaifox", "hdporncomics"]
     : isHentaiFoxRef(pathOrUrl)
       ? ["hentaifox", "ehentai", "hdporncomics"]
-      : ["hdporncomics", "hentaifox", "ehentai"];
+      : isNhentaiRef(pathOrUrl)
+        ? ["nhentai", "hitomi", "hentaifox"]
+        : ["hdporncomics", "hentaifox", "ehentai"];
   const head: SourceId = isHitomiRef(pathOrUrl) ? "hitomi" : base[0];
   const order: SourceId[] = [...new Set([head, ...base, ...sourceChain()])];
 
@@ -284,6 +292,15 @@ import {
   isHitomiRef,
 } from "@/lib/sources/hitomi";
 import { doujinDetail, doujinEnabled, isDoujinRef } from "@/lib/sources/doujin";
+import {
+  nhDetail,
+  nhHealth,
+  nhListPage,
+  nhPopularTags,
+  nhTagIndex,
+  isNhentaiRef,
+  nhentaiEnabled,
+} from "@/lib/sources/nhentai";
 
 const HD_BASE = "https://hdporncomics.com";
 const UA =
@@ -449,6 +466,7 @@ async function listing(
 }
 
 export function listPage(source: SourceId, basePath: string, page: number, query?: { s?: string }): Promise<Listing> {
+  if (source === "nhentai") return nhListPage(basePath, page, query);
   if (source === "hitomi") return hitListPage(basePath, page, query);
   if (source === "hentaifox") return hfListPage(basePath, page, query);
   if (source === "ehentai") return ehListPage(basePath, page, query);
@@ -456,6 +474,7 @@ export function listPage(source: SourceId, basePath: string, page: number, query
 }
 
 export async function getComicFor(source: SourceId, pathOrUrl: string): Promise<ComicDetail> {
+  if (source === "nhentai" || isNhentaiRef(pathOrUrl)) return nhDetail(pathOrUrl);
   if (source === "hentaifox" || isHentaiFoxRef(pathOrUrl)) return hfDetail(pathOrUrl);
   if (source === "ehentai" || isEHentaiRef(pathOrUrl)) return ehDetail(pathOrUrl);
   if (source === "hitomi" || isHitomiRef(pathOrUrl)) return hitDetail(pathOrUrl);
@@ -516,6 +535,9 @@ async function hdporncomicsDetail(pathOrUrl: string): Promise<ComicDetail> {
 }
 
 export async function allTagsFor(source: SourceId): Promise<{ slug: string; label: string; count?: number }[]> {
+  if (source === "nhentai") {
+    return nhTagIndex();
+  }
   if (source === "hitomi") {
     return hitTagIndex(); // already sorted alphabetically
   }
@@ -541,6 +563,9 @@ export async function allTagsFor(source: SourceId): Promise<{ slug: string; labe
 }
 
 export async function popularTagsFor(source: SourceId, limit = 28): Promise<{ slug: string; count: number }[]> {
+  if (source === "nhentai") {
+    return nhPopularTags(limit);
+  }
   if (source === "hitomi") {
     return hitPopularTags(limit);
   }
