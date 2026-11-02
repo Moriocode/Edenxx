@@ -1,8 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import Notice from "@/components/Notice";
 import { allTags } from "@/lib/source";
+import { listingMeta } from "@/lib/seo";
 
 export const revalidate = 3600;
+
+export const metadata: Metadata = listingMeta({
+  title: "All tags",
+  description:
+    "Complete index of comic tags — browse doujin, manga and manhwa by tag, from most popular to niche kinks.",
+  path: "/tags",
+});
 
 export default async function TagsPage() {
   let tags;

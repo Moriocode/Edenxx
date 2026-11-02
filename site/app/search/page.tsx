@@ -1,9 +1,26 @@
+import type { Metadata } from "next";
 import ListingView from "@/components/ListingView";
 import Notice from "@/components/Notice";
 import TagRail from "@/components/TagRail";
 import { popularTags, searchComics } from "@/lib/source";
+import { truncate } from "@/lib/seo";
 
 export const revalidate = 0;
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}): Promise<Metadata> {
+  const q = ((await searchParams).q || "").trim();
+  // Search result pages are combinations of an open-ended query string —
+  // keep them out of the index (see app/robots.ts) but still give them a
+  // useful tab title for returning users.
+  return {
+    title: q ? `Search: ${truncate(q, 40)}` : "Search comics",
+    robots: { index: false },
+  };
+}
 
 export default async function SearchPage({
   searchParams,

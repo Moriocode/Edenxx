@@ -1,10 +1,13 @@
 import { Fragment } from "react";
 import Link from "next/link";
+import type { Metadata } from "next";
 import AdSlot, { AD_EVERY } from "@/components/AdSlot";
 import ComicCard from "@/components/ComicCard";
+import JsonLd from "@/components/JsonLd";
 import LoadableImage from "@/components/LoadableImage";
 import Notice from "@/components/Notice";
 import { getComic } from "@/lib/source";
+import { absUrl, truncate } from "@/lib/seo";
 
 export const revalidate = 600;
 
@@ -12,10 +15,46 @@ function pretty(slug: string) {
   return slug.replace(/-+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
   const { slug } = await params;
-  const name = pretty(slug.join("/"));
-  return { title: `${name} — Kitsune` };
+  const path = "/" + slug.join("/") + "/";
+  const fallback = pretty(slug[slug.length - 1] || slug.join(" "));
+
+  try {
+    const comic = await getComic(path);
+    const tagList = comic.tags
+      .slice(0, 5)
+      .map((t) => t.replace(/^[a-z]+:/, "").replace(/\+/g, " "))
+      .join(", ");
+    const pageCount = comic.images.length;
+    const description = truncate(
+      `Read “${comic.title}” online${pageCount ? ` — ${pageCount} pages` : ""}` +
+        `${tagList ? `. Tags: ${tagList}` : ""}. Free adult comic and doujinshi reader.`,
+    );
+    const image = comic.cover || undefined;
+
+    return {
+      title: comic.title,
+      description,
+      alternates: { canonical: `/comic/${slug.join("/")}` },
+      openGraph: {
+        type: "article",
+        siteName: "Kitsune",
+        title: comic.title,
+        description,
+        ...(image ? { images: [{ url: image }] } : {}),
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: comic.title,
+        description,
+        ...(image ? { images: [image] } : {}),
+      },
+    };
+  } catch {
+    // Detail page will render its own error state; metadata falls back to the slug.
+    return { title: fallback, robots: { index: false } };
+  }
 }
 
 export default async function ComicPage({ params }: { params: Promise<{ slug: string[] }> }) {
@@ -37,6 +76,36 @@ export default async function ComicPage({ params }: { params: Promise<{ slug: st
 
   return (
     <div className="space-y-10">
+      {/* Structured data: what the comic is, plus breadcrumb trail for search. */}
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "ComicStory",
+              name: comic.title,
+              url: absUrl(`/comic/${comic.slug}`),
+              ...(comic.cover ? { image: comic.cover } : {}),
+              ...(comic.artists.length ? { author: comic.artists.map((a) => ({ "@type": "Person", name: a })) } : {}),
+              ...(comic.tags.length ? { genre: comic.tags.slice(0, 8).join(", ") } : {}),
+              ...(pageCount ? { numberOfPages: pageCount } : {}),
+            },
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: absUrl("/") },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: comic.title,
+                  item: absUrl(`/comic/${comic.slug}`),
+                },
+              ],
+            },
+          ],
+        }}
+      />
+
       <nav className="flex items-center gap-2 text-xs text-muted">
         <Link href="/" className="hover:text-accent">
           Home

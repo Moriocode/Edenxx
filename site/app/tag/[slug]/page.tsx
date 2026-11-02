@@ -1,11 +1,27 @@
+import type { Metadata } from "next";
 import ListingView from "@/components/ListingView";
 import Notice from "@/components/Notice";
 import { listTag, popularTags } from "@/lib/source";
+import { listingMeta } from "@/lib/seo";
 
 export const revalidate = 600;
 
 function pretty(slug: string) {
   return slug.replace(/-+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const name = pretty(slug);
+  return listingMeta({
+    title: `${name} comics`,
+    description: `Read ${name} comics online for free — browse the latest doujin, manga and manhwa tagged ${slug.replace(/-/g, " ")}.`,
+    path: `/tag/${slug}`,
+  });
 }
 
 export default async function TagPage({

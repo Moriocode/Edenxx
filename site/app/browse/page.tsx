@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import ListingView from "@/components/ListingView";
 import Notice from "@/components/Notice";
 import { listLatest, popularTags } from "@/lib/source";
+import { listingMeta } from "@/lib/seo";
 
 export const revalidate = 600;
+
+export const metadata: Metadata = listingMeta({
+  title: "Browse the catalogue",
+  description:
+    "Every adult comic, doujin and manhwa in the index, newest first — free to read online.",
+  path: "/browse",
+});
 
 export default async function BrowsePage({
   searchParams,

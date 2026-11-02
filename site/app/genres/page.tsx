@@ -3,8 +3,10 @@ import type { Metadata } from "next";
 import { GENRE_GROUPS } from "@/lib/genres";
 
 export const metadata: Metadata = {
-  title: "Genres — Kitsune",
-  description: "Browse adult comics by genre: doujinshi, manhwa, yaoi, yuri, futanari and more.",
+  title: "Genres",
+  description:
+    "Browse adult comics by genre: doujinshi, manhwa, yaoi, yuri, futanari and more — jump straight to the tags you read.",
+  alternates: { canonical: "/genres" },
 };
 
 export default function GenresPage() {
