@@ -60,7 +60,10 @@ export function isNhentaiRef(ref: string): boolean {
 }
 
 function nhId(ref: string): string | null {
-  const m = (ref || "").match(/(?:^nh-|^g\/|\/g\/)(\d+)/);
+  // Route params arrive slash-wrapped ("/nh-693384/"), so normalize first.
+  const clean = (ref || "").trim().replace(/^\/+|\/+$/g, "");
+  const m =
+    clean.match(/^nh-(\d+)/) || clean.match(/^g\/(\d+)/) || clean.match(/\/g\/(\d+)/);
   return m ? m[1] : null;
 }
 
