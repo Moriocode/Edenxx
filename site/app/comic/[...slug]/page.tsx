@@ -88,7 +88,7 @@ export default async function ComicPage({ params }: { params: Promise<{ slug: st
               ...(comic.cover ? { image: comic.cover } : {}),
               ...(comic.artists.length ? { author: comic.artists.map((a) => ({ "@type": "Person", name: a })) } : {}),
               ...(comic.tags.length ? { genre: comic.tags.slice(0, 8).join(", ") } : {}),
-              ...(pageCount ? { numberOfPages: pageCount } : {}),
+              ...(comic.images.length ? { numberOfPages: comic.images.length } : {}),
             },
             {
               "@type": "BreadcrumbList",

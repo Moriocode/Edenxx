@@ -3,7 +3,7 @@ import { LegalPage, List, Section } from "@/components/Legal";
 import { CONTACT_EMAIL, SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — Kitsune",
+  title: "Terms of Service",
   description:
     "Terms of Service for Kitsune, including acceptable use, rights-holder notices, the no-minors policy and limitations of liability.",
 };

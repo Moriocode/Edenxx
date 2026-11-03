@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import ListingView from "@/components/ListingView";
 import JsonLd from "@/components/JsonLd";
 import Notice from "@/components/Notice";
@@ -5,6 +6,10 @@ import { listLatest, popularTags } from "@/lib/source";
 import { absUrl, SITE_NAME } from "@/lib/seo";
 
 export const revalidate = 600;
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default async function HomePage({
   searchParams,

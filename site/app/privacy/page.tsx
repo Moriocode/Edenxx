@@ -3,7 +3,7 @@ import { LegalPage, List, Section } from "@/components/Legal";
 import { CONTACT_EMAIL, SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Kitsune",
+  title: "Privacy Policy",
   description:
     "What Kitsune collects, what it does not, how third-party image hosts are contacted, and your choices.",
 };
