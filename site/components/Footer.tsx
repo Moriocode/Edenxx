@@ -1,50 +1,103 @@
+import Image from "next/image";
 import Link from "next/link";
 import { CONTACT_EMAIL, SITE_NAME } from "@/lib/constants";
 
-const links = [
+const browse = [
+  { href: "/", label: "Latest" },
+  { href: "/browse", label: "Browse catalogue" },
   { href: "/genres", label: "Genres" },
-  { href: "/tags", label: "Tags" },
+  { href: "/tags", label: "Tag index" },
+];
+
+const site = [
   { href: "/terms", label: "Terms of Service" },
   { href: "/terms#dmca", label: "Rights-holder notices" },
   { href: "/privacy", label: "Privacy Policy" },
 ];
 
 export default function Footer() {
-  return (
-    <footer className="mt-10 border-t border-line/70 bg-panel/40">
-      <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-5 px-4 py-8 text-xs text-muted">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          {links.map((link) => (
-            <Link
-              key={link.href + link.label}
-              href={link.href}
-              className="font-semibold text-white/70 transition hover:text-accent"
-            >
-              {link.label}
-            </Link>
-          ))}
-          <a
-            href={`mailto:${CONTACT_EMAIL}`}
-            className="font-semibold text-white/70 transition hover:text-accent"
-          >
-            Contact
-          </a>
+  const year = new Date().getFullYear();
 
+  return (
+    <footer className="mt-16 border-t border-line bg-panel/30">
+      <div className="mx-auto w-full max-w-[1400px] px-4 py-10 sm:px-6">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr] lg:gap-12">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <Image
+                src="/erofox-mark.png"
+                alt=""
+                width={320}
+                height={315}
+                className="h-8 w-auto"
+              />
+              <span className="text-[15px] font-black lowercase tracking-[-0.02em] text-fg">
+                {SITE_NAME}
+              </span>
+              <span className="rounded-md border border-line px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-muted">
+                18+
+              </span>
+            </div>
+
+            <p className="mt-3 max-w-xs text-xs leading-relaxed text-muted">
+              Adult comics, doujin and manhwa indexed from third-party sources. Artwork remains the
+              property of its authors; this site hosts no files.
+            </p>
+
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="mt-3 inline-block text-xs font-semibold text-fg/80 transition-colors hover:text-accent"
+            >
+              {CONTACT_EMAIL}
+            </a>
+          </div>
+
+          <nav aria-label="Browse">
+            <p className="eyebrow mb-3">Browse</p>
+            <ul className="space-y-2 text-[13px]">
+              {browse.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-muted transition-colors hover:text-fg"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <nav aria-label="Site">
+            <p className="eyebrow mb-3">Site</p>
+            <ul className="space-y-2 text-[13px]">
+              {site.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-muted transition-colors hover:text-fg"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="text-muted transition-colors hover:text-fg"
+                >
+                  Contact
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
 
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <p className="font-semibold">
-            {SITE_NAME.toUpperCase()} — adult comics, doujin &amp; manhwa reader
+        <div className="mt-8 flex flex-col gap-2 border-t border-line pt-6 text-[11px] text-muted sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            © {year} {SITE_NAME}. All rights to featured artwork belong to their respective owners.
           </p>
-          <p className="max-w-xl leading-relaxed text-muted/80">
-            All comics and artwork are retrieved from third-party sources and remain the property of
-            their respective authors. This site indexes and displays artwork only; it hosts no files.
-            If you are an artist or rights holder and want something removed, see our{" "}
-            <Link href="/terms#dmca" className="text-accent hover:underline">
-              rights-holder notice
-            </Link>{" "}
-            process. 18+ only.
-          </p>
+          <p className="text-muted/80">Adults only · not directed to anyone under 18</p>
         </div>
       </div>
     </footer>
