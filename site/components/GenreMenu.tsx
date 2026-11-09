@@ -36,12 +36,12 @@ export default function GenreMenu() {
         aria-expanded={open}
         aria-controls="genre-menu"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 rounded-lg border border-line bg-panel px-3 py-2 text-sm font-semibold text-white/80 transition hover:border-accent/60 hover:text-accent"
+        className={`btn h-9 gap-1.5 px-3 text-[13px] ${open ? "border-edge bg-panel text-fg" : ""}`}
       >
         <svg
           aria-hidden
           viewBox="0 0 24 24"
-          className="h-4 w-4"
+          className="h-4 w-4 text-muted"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
@@ -53,7 +53,7 @@ export default function GenreMenu() {
         <svg
           aria-hidden
           viewBox="0 0 24 24"
-          className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-3.5 w-3.5 text-muted transition-transform ${open ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           strokeWidth="2.5"
@@ -66,13 +66,13 @@ export default function GenreMenu() {
       {open ? (
         <div
           id="genre-menu"
-          className="absolute left-0 top-full z-50 mt-2 w-[min(calc(100vw-2rem),44rem)] rounded-xl border border-line bg-panel p-4 shadow-2xl shadow-black/70"
+          className="animate-menu-in absolute left-0 top-full z-50 mt-2 w-[min(calc(100vw-2rem),44rem)] rounded-xl border border-edge bg-panel p-4 shadow-2xl shadow-black/60"
         >
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             {GENRE_GROUPS.map((group) => (
               <section key={group.title}>
-                <h2 className="mb-2 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-widest text-muted">
-                  <span className="h-3 w-1 rounded bg-accent" />
+                <h2 className="eyebrow mb-2 flex items-center gap-2">
+                  <span aria-hidden className="h-3 w-0.5 rounded-full bg-accent" />
                   {group.title}
                 </h2>
                 <div className="flex flex-wrap gap-1.5">
@@ -81,7 +81,7 @@ export default function GenreMenu() {
                       key={genre.slug}
                       href={`/tag/${genre.slug}`}
                       onClick={() => setOpen(false)}
-                      className="rounded-md border border-line bg-panel2 px-2.5 py-1 text-[12px] font-semibold text-white/75 transition hover:border-accent/60 hover:text-accent"
+                      className="chip"
                     >
                       {genre.label}
                     </Link>
@@ -91,7 +91,7 @@ export default function GenreMenu() {
             ))}
           </div>
 
-          <div className="mt-4 flex items-center justify-between border-t border-line/70 pt-3">
+          <div className="mt-4 flex items-center justify-between border-t border-line pt-3">
             <Link
               href="/genres"
               onClick={() => setOpen(false)}
@@ -102,7 +102,7 @@ export default function GenreMenu() {
             <Link
               href="/tags"
               onClick={() => setOpen(false)}
-              className="text-xs text-muted transition hover:text-white"
+              className="text-xs text-muted transition-colors hover:text-fg"
             >
               Full tag index
             </Link>

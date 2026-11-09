@@ -54,9 +54,12 @@ export default function LoadableImage({
       ) : null}
 
       {status === "error" ? (
-        <span aria-hidden className={`min-h-[8rem] bg-panel2 p-3 text-center ${className}`}>
-          <span className="text-2xl opacity-30">🦊</span>
-          <span className="mt-1 block text-[10px] font-semibold text-muted">Image unavailable</span>
+        <span
+          aria-hidden
+          className={`grid min-h-[8rem] place-content-center gap-1 bg-panel2 p-3 text-center ${className}`}
+        >
+          <span className="text-lg font-black lowercase tracking-tight text-line">erofox</span>
+          <span className="block text-[10px] font-semibold text-muted">Image unavailable</span>
         </span>
       ) : (
         // Hotlinked upstream art: deliberately a plain <img> (no optimizer,
