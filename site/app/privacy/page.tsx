@@ -5,14 +5,14 @@ import { CONTACT_EMAIL, SITE_NAME } from "@/lib/constants";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "What Kitsune collects, what it does not, how third-party image hosts are contacted, and your choices.",
+    "What erofox collects, what it does not, how anonymous page-view counts work, how third-party image hosts are contacted, and your choices.",
 };
 
 export default function PrivacyPage() {
   return (
     <LegalPage
       title="Privacy Policy"
-      updated="28 October 2026"
+      updated="9 November 2026"
       intro={
         <>
           This policy explains what {SITE_NAME} collects when you browse, why, and what you can do
@@ -26,9 +26,10 @@ export default function PrivacyPage() {
     >
       <Section n={1} title="Summary">
         <p>
-          {SITE_NAME} has no accounts and no advertising of its own. We do not sell personal data
-          and we do not run third-party analytics or tracking scripts. What we hold is ordinary web
-          server data and a small amount of information stored in your own browser.
+          {SITE_NAME} has no accounts, no advertising of its own and no third-party analytics or
+          tracking scripts. We do not sell personal data. What we hold is ordinary web server data,
+          anonymous totals of how often pages are opened, and a small amount of information stored in
+          your own browser.
         </p>
       </Section>
 
@@ -51,6 +52,12 @@ export default function PrivacyPage() {
               confirmation and reading settings are stored locally in your browser (see below). They
               are not sent to us.
             </>,
+            <>
+              <span className="font-semibold text-white">Page-view counts.</span> Opening a page adds
+              one to a set of anonymous totals: how many views in all, how many visitors, and which
+              pages are opened. These are counters, not a record of your visits. Section 5 explains
+              exactly what is and is not kept.
+            </>,
           ]}
         />
         <p>
@@ -61,10 +68,16 @@ export default function PrivacyPage() {
 
       <Section n={3} title="Cookies & Local Storage">
         <p>
-          The Site does not set advertising or analytics cookies. We use your browser&rsquo;s local
-          storage for one thing: remembering that you confirmed you are an adult, so the age gate does
-          not reappear on every visit. Clearing your browser storage removes it and the gate will show
-          again.
+          The Site sets no advertising, cross-site or third-party cookies. The one cookie we do set
+          exists only to count page views (section 5): it holds a random identifier generated when you
+          first arrive, it is marked <span className="font-semibold text-white">HttpOnly</span> so
+          page scripts cannot read it, it is never shared with anyone, and it expires after a year.
+          Clear your cookies and you simply receive a new random identifier.
+        </p>
+        <p>
+          We use your browser&rsquo;s local storage for one thing: remembering that you confirmed you
+          are an adult, so the age gate does not reappear on every visit. Clearing your browser
+          storage removes it and the gate will show again.
         </p>
       </Section>
 
@@ -79,9 +92,32 @@ export default function PrivacyPage() {
 
       <Section n={5} title="Analytics & Advertising">
         <p>
-          We currently use no analytics, no advertising networks and no social tracking pixels. If
-          that ever changes, this page will be updated first, and any third-party service will be
-          named here along with a link to its policy.
+          Page views are counted in aggregate only. When you open a page, your browser sends one small
+          background request that adds one to the overall total, to the count for that page, and — at
+          most once a day — to a count of unique visitors. To keep a refresh from inflating the
+          numbers, the Site uses the random first-party cookie described in section 3 and a short-lived
+          marker for that page lasting 30 minutes; a returning visitor is counted as unique at most
+          once every 24 hours.
+        </p>
+        <p>
+          No IP address, user agent, referrer or browsing history is stored alongside those counts,
+          and nothing is tied to an account because there are none. We only ever see totals, so we
+          cannot build a profile of you from them, and we neither sell nor share the figures. Requests
+          that signal Do Not Track or Global Privacy Control, and requests from known bots and
+          crawlers, are skipped entirely.
+        </p>
+        <p>
+          <span className="font-semibold text-white">The consent caveat.</span> Counting visits without
+          consent is not settled law. We have deliberately limited this to non-identifying totals, but
+          storing even a random identifier on your device may require your consent in the EEA, the UK
+          and comparable jurisdictions. You can refuse it without losing anything: block or clear the
+          cookie, or turn on Do Not Track / Global Privacy Control, and the Site works exactly as
+          before — you are simply not counted. If we ever want more than these totals, such as
+          per-visitor reporting or any third party, we will ask for consent first and name the service
+          here.
+        </p>
+        <p>
+          We use no advertising networks and no social tracking pixels.
         </p>
       </Section>
 
@@ -101,7 +137,10 @@ export default function PrivacyPage() {
         <p>
           Where the GDPR or UK GDPR applies, we rely on our legitimate interests in operating and
           securing the Site, on your consent where we ask for it (for example the age confirmation),
-          and on legal obligation where records must be kept or a valid request must be answered.
+          and on legal obligation where records must be kept or a valid request must be answered. We
+          treat the page-view totals in section 5 as a legitimate-interest activity kept deliberately
+          minimal; where local law requires consent for storing information on your device, section 5
+          explains how to withhold it and still use the Site.
         </p>
       </Section>
 
@@ -110,6 +149,12 @@ export default function PrivacyPage() {
           Server logs and cached upstream pages are kept only as long as needed for operations,
           security and debugging, and are rotated or deleted on a routine schedule. Cached content is
           refreshed regularly and is not tied to individual visitors.
+        </p>
+        <p>
+          The page-view totals contain no personal data and are kept so trends remain comparable over
+          time. The temporary marker that prevents double-counting a page expires on its own within 30
+          minutes, the once-a-day visitor marker within 24 hours, and the random cookie in your browser
+          after at most a year or whenever you clear it.
         </p>
       </Section>
 
