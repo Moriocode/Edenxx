@@ -10,7 +10,9 @@ import type { Metadata } from "next";
  * canonicals, Open Graph and the sitemap always resolve to a real origin.
  */
 
-export const SITE_NAME = "Kitsune";
+import { SITE_NAME } from "@/lib/constants";
+
+export { SITE_NAME };
 
 export const DEFAULT_DESCRIPTION =
   "Browse and read adult comics, doujin and manhwa online. Tag and artist browsing, fast image reader, fresh chapters daily.";
@@ -37,7 +39,7 @@ export function truncate(text: string, max = 155): string {
 
 /**
  * Metadata for a listing-style page: title feeds the layout's
- * "%s — Kitsune" template, canonical keeps paginated variants consolidated.
+ * "%s · erofox" template, canonical keeps paginated variants consolidated.
  */
 export function listingMeta(options: {
   title: string;

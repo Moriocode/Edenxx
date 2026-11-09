@@ -32,7 +32,7 @@ import type { ComicCard, ComicDetail, Listing } from "@/lib/source";
 
 const NH_API = "https://nhentai.net/api/v2";
 const NH_WEB = "https://nhentai.net";
-const UA = "Kitsune/1.0 (https://github.com/Moriocode/Edenxx)";
+const UA = "erofox/1.0 (https://github.com/Moriocode/Edenxx)";
 
 const THUMB_SERVERS = ["t1", "t2", "t3", "t4"].map((n) => `https://${n}.nhentai.net`);
 const IMAGE_SERVERS = ["i1", "i2", "i3", "i4"].map((n) => `https://${n}.nhentai.net`);

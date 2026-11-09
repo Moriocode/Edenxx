@@ -1,6 +1,6 @@
 import type { SourceId } from "@/lib/source";
 
-export const SITE_NAME = "Kitsune";
+export const SITE_NAME = "erofox";
 export const SITE_TAGLINE = "adult comics, doujin & manhwa reader";
 
 /**
@@ -9,7 +9,7 @@ export const SITE_TAGLINE = "adult comics, doujin & manhwa reader";
  * Replace this with a real, monitored mailbox before launch — ``.example`` is a
  * reserved placeholder domain, not a deliverable address.
  */
-export const CONTACT_EMAIL = "contact@kitsune.example";
+export const CONTACT_EMAIL = "contact@erofox.example";
 
 /**
  * Default active source id.
