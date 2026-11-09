@@ -39,9 +39,9 @@ export default async function HomePage({
         />
         <ListingView
           title="Latest comics"
-        subtitle="Freshly indexed adult comics, doujin and manhwa"
-        listing={listing}
-        base="/"
+          subtitle="Freshly indexed adult comics, doujin and manhwa"
+          listing={listing}
+          base="/"
           tags={tags}
         />
       </>

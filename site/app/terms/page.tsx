@@ -5,7 +5,7 @@ import { CONTACT_EMAIL, SITE_NAME } from "@/lib/constants";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "Terms of Service for Kitsune, including acceptable use, rights-holder notices, the no-minors policy and limitations of liability.",
+    "Terms of Service for erofox, including acceptable use, rights-holder notices, the no-minors policy and limitations of liability.",
 };
 
 export default function TermsPage() {
