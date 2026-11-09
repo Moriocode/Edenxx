@@ -8,7 +8,7 @@ import JsonLd from "@/components/JsonLd";
 import LoadableImage from "@/components/LoadableImage";
 import Notice from "@/components/Notice";
 import { getComic } from "@/lib/source";
-import { absUrl, truncate } from "@/lib/seo";
+import { SITE_NAME, absUrl, truncate } from "@/lib/seo";
 
 export const revalidate = 600;
 
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       alternates: { canonical: `/comic/${slug}` },
       openGraph: {
         type: "article",
-        siteName: "Kitsune",
+        siteName: SITE_NAME,
         title: comic.title,
         description,
         ...(image ? { images: [{ url: image }] } : {}),
