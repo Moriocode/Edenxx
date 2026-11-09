@@ -14,21 +14,16 @@ export default function TagRail({
   tags: Tag[];
 }) {
   return (
-    <section className="rounded-xl border border-line/70 bg-panel p-3">
-      <h2 className="mb-2.5 flex items-center gap-2 px-1 text-[12px] font-extrabold uppercase tracking-widest text-muted">
-        <span className="h-3 w-1 rounded bg-accent" />
+    <section className="surface p-3.5">
+      <h2 className="eyebrow mb-2.5 flex items-center gap-2 px-0.5">
+        <span aria-hidden className="h-3 w-0.5 rounded-full bg-accent" />
         {title}
       </h2>
       <div className="flex flex-wrap gap-1.5">
         {tags.map((t) => (
-          <Link
-            key={t.slug}
-            href={`/tag/${t.slug}`}
-            title={label(t.slug)}
-            className="rounded-md border border-line bg-panel2 px-2 py-1 text-[11px] font-semibold text-white/75 transition hover:border-accent/60 hover:text-accent"
-          >
+          <Link key={t.slug} href={`/tag/${t.slug}`} title={label(t.slug)} className="chip">
             {label(t.slug)}
-            {t.count ? <span className="ml-1 text-muted/60">{t.count}</span> : null}
+            {t.count ? <span className="text-muted/60">{t.count}</span> : null}
           </Link>
         ))}
       </div>

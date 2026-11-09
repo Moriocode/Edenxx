@@ -79,17 +79,17 @@ export default function Reader({
 
   return (
     <div className="pb-20">
-      <div className="sticky top-[61px] z-30 -mx-4 mb-4 border-y border-line/80 bg-ink/95 px-4 py-2 backdrop-blur">
+      <div className="sticky top-16 z-30 -mx-4 mb-4 border-y border-line bg-ink/90 px-4 py-2 backdrop-blur-xl sm:-mx-6">
         <div className="mx-auto flex max-w-4xl items-center gap-3">
           <Link
             href={backHref}
-            className="shrink-0 rounded-md border border-line bg-panel px-2.5 py-1.5 text-xs font-bold text-white/80 transition hover:border-accent/60 hover:text-accent"
+            className="btn shrink-0 px-2.5 py-1.5"
           >
             ← Info
           </Link>
 
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] font-semibold text-white/90">{title}</p>
+            <p className="truncate text-[13px] font-semibold text-fg">{title}</p>
             <p className="text-[11px] text-muted">
               page {current} of {total}
             </p>
@@ -99,20 +99,20 @@ export default function Reader({
             <button
               onClick={() => goTo(current - 1)}
               disabled={current <= 1}
-              className="rounded-md border border-line bg-panel px-2.5 py-1.5 text-xs font-bold text-white/80 transition enabled:hover:border-accent/60 enabled:hover:text-accent disabled:opacity-35"
+              className="btn px-2.5 py-1.5"
             >
               Prev
             </button>
             <button
               onClick={() => goTo(current + 1)}
               disabled={current >= total}
-              className="rounded-md bg-accent px-2.5 py-1.5 text-xs font-extrabold text-black transition enabled:hover:brightness-110 disabled:opacity-35"
+              className="btn btn-primary px-2.5 py-1.5"
             >
               Next
             </button>
           </div>
         </div>
-        <div className="mx-auto mt-1.5 h-0.5 max-w-4xl overflow-hidden rounded bg-line">
+        <div className="mx-auto mt-2 h-1 max-w-4xl overflow-hidden rounded-full bg-line">
           <div
             className="h-full bg-accent transition-all"
             style={{ width: `${total ? (current / total) * 100 : 0}%` }}
@@ -138,7 +138,7 @@ export default function Reader({
                 loading={i < 2 ? "eager" : "lazy"}
                 className="reader-img rounded-sm"
                 wrapperClassName="w-full"
-                pendingClassName="min-h-[65vh] rounded-sm bg-[#101012]"
+                pendingClassName="min-h-[65vh] rounded-sm bg-panel2"
               />
               <div className="py-1 text-center text-[10px] font-semibold tracking-wide text-muted/50">
                 {i + 1} / {total}
@@ -154,25 +154,25 @@ export default function Reader({
         ))}
       </div>
 
-      <div className="mx-auto mt-6 max-w-4xl rounded-xl border border-line bg-panel p-5 text-center">
+      <div className="surface mx-auto mt-6 max-w-4xl p-6 text-center">
         <p className="text-sm font-bold">You reached the end</p>
         <p className="mt-1 text-xs text-muted">Continue browsing or go back to the comic page.</p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           <button
             onClick={() => goTo(1)}
-            className="rounded-lg border border-line px-3 py-2 text-xs font-bold text-white/80 hover:border-accent/60 hover:text-accent"
+            className="btn"
           >
             Back to page 1
           </button>
           <Link
             href={backHref}
-            className="rounded-lg border border-line px-3 py-2 text-xs font-bold text-white/80 hover:border-accent/60 hover:text-accent"
+            className="btn"
           >
             Comic info
           </Link>
           <Link
             href="/"
-            className="rounded-lg bg-accent px-3 py-2 text-xs font-extrabold text-black hover:brightness-110"
+            className="btn btn-primary"
           >
             Browse more
           </Link>
