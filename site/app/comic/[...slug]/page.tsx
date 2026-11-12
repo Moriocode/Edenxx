@@ -1,11 +1,13 @@
 import { Fragment } from "react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import AdSlot, { AD_EVERY } from "@/components/AdSlot";
 import ComicCard from "@/components/ComicCard";
 import JsonLd from "@/components/JsonLd";
 import LoadableImage from "@/components/LoadableImage";
 import Notice from "@/components/Notice";
+import { isContentBlocked } from "@/lib/moderation";
 import { getComic } from "@/lib/source";
 import { SITE_NAME, absUrl, truncate } from "@/lib/seo";
 
@@ -65,6 +67,9 @@ export default async function ComicPage({ params }: { params: Promise<{ slug: st
   try {
     comic = await getComic(path);
   } catch (err) {
+    // Removed by the content blocklist: indistinguishable from a dead link.
+    if (isContentBlocked(err)) notFound();
+
     return (
       <Notice
         title="Comic unavailable"
@@ -116,7 +121,7 @@ export default async function ComicPage({ params }: { params: Promise<{ slug: st
 
       <div className="grid gap-6 md:grid-cols-[280px_1fr]">
         <div className="space-y-3">
-          <div className="overflow-hidden rounded-xl border border-line bg-black">
+          <div className="overflow-hidden rounded-xl border border-line bg-panel">
             {comic.cover ? (
               <LoadableImage
                 src={comic.cover}
@@ -132,7 +137,7 @@ export default async function ComicPage({ params }: { params: Promise<{ slug: st
 
           <Link
             href={`/read/${comic.slug}`}
-            className="block rounded-lg bg-accent px-4 py-3 text-center text-sm font-extrabold text-black transition hover:brightness-110"
+            className="btn btn-primary w-full px-4 py-3 text-sm"
           >
             Read comic · {comic.images.length} pages
           </Link>
@@ -163,7 +168,7 @@ export default async function ComicPage({ params }: { params: Promise<{ slug: st
                   <Link
                     key={a}
                     href={`/artist/${a.toLowerCase().replace(/\s+/g, "-")}`}
-                    className="rounded-md border border-accent/40 bg-accent/10 px-2.5 py-1 text-[12px] font-semibold text-accent transition hover:bg-accent hover:text-black"
+                    className="chip px-2.5 py-1 text-[12px] text-accent"
                   >
                     {a}
                   </Link>
@@ -182,7 +187,7 @@ export default async function ComicPage({ params }: { params: Promise<{ slug: st
                   <Link
                     key={t}
                     href={`/tag/${t.toLowerCase().replace(/\s+/g, "-")}`}
-                    className="rounded-md border border-line bg-panel2 px-2.5 py-1 text-[12px] font-semibold text-white/75 transition hover:border-accent/60 hover:text-accent"
+                    className="chip px-2.5 py-1 text-[12px] text-fg/75"
                   >
                     {t.replace(/^[a-z]+:/, "").replace(/\+/g, " ")}
                   </Link>
@@ -210,7 +215,7 @@ export default async function ComicPage({ params }: { params: Promise<{ slug: st
               <Fragment key={src}>
                 <Link
                   href={`/read/${comic.slug}?page=${i + 1}`}
-                  className="group relative overflow-hidden rounded-lg border border-line bg-black"
+                  className="group relative overflow-hidden rounded-lg border border-line bg-panel"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <LoadableImage
@@ -220,7 +225,7 @@ export default async function ComicPage({ params }: { params: Promise<{ slug: st
                     className="h-full w-full object-cover opacity-85 transition group-hover:scale-105 group-hover:opacity-100"
                     wrapperClassName="aspect-[3/4]"
                   />
-                  <span className="absolute bottom-1 left-1 rounded bg-black/80 px-1.5 py-0.5 text-[10px] font-bold text-white/80">
+                  <span className="absolute bottom-1 left-1 rounded bg-ink/85 px-1.5 py-0.5 text-[10px] font-bold text-fg/85">
                     {i + 1}
                   </span>
                 </Link>
