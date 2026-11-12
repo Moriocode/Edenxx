@@ -239,6 +239,9 @@ export default function Header() {
                 <Link href="/terms" className="chip">
                   Terms
                 </Link>
+                <Link href="/dmca" className="chip">
+                  DMCA
+                </Link>
               </div>
             </div>
 
