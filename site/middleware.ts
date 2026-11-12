@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { AGE_COOKIE, AGE_GATE_PATH, isAgeGateExempt } from "@/lib/compliance";
+import { AGE_COOKIE, AGE_GATE_PATH } from "@/lib/compliance";
 import { isBlockedTag } from "@/lib/moderation";
 import { takedownForPath, type TakedownEntry } from "@/lib/takedowns";
 
@@ -15,8 +15,10 @@ import { takedownForPath, type TakedownEntry } from "@/lib/takedowns";
  *    Gallery thumbnails, titles and reader pages are therefore absent from the
  *    HTML entirely — not hidden behind an overlay.
  *
- * Legal pages (/dmca, /terms, /privacy), API routes and static assets bypass the
- * age gate so rights holders and the app itself can reach them.
+ * Legal pages (/dmca, /terms, /privacy), API routes and static assets in turn
+ * sit behind the gate like everything else: the only document a new visitor can
+ * open is the age confirmation, and the takedown and policy pages are reachable
+ * from the site footer once they have entered.
  */
 
 const GONE_STYLE = `
@@ -139,8 +141,8 @@ export function middleware(request: NextRequest) {
     });
   }
 
-  // 3. Age verification.
-  if (pathname === AGE_GATE_PATH || isAgeGateExempt(pathname)) return NextResponse.next();
+  // 3. Age verification: the gate is the only page an unverified visitor sees.
+  if (pathname === AGE_GATE_PATH) return NextResponse.next();
   if (request.cookies.get(AGE_COOKIE)?.value === "1") return NextResponse.next();
 
   const gate = request.nextUrl.clone();
