@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import ListingView from "@/components/ListingView";
 import Notice from "@/components/Notice";
+import { isBlockedTag } from "@/lib/moderation";
 import { listTag, popularTags } from "@/lib/source";
 import { listingMeta } from "@/lib/seo";
 
@@ -34,6 +36,9 @@ export default async function TagPage({
   const { slug } = await params;
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page) || 1);
+
+  // Blocklisted tags have no index page at all.
+  if (isBlockedTag(slug)) notFound();
 
   try {
     const [listing, tags] = await Promise.all([listTag(slug, page), popularTags(24)]);

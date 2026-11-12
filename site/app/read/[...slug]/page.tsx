@@ -1,5 +1,7 @@
+import { notFound } from "next/navigation";
 import Notice from "@/components/Notice";
 import Reader from "@/components/Reader";
+import { isContentBlocked } from "@/lib/moderation";
 import { getComic } from "@/lib/source";
 
 export const revalidate = 600;
@@ -20,6 +22,9 @@ export default async function ReadPage({
   try {
     comic = await getComic(path);
   } catch (err) {
+    // Removed by the content blocklist: answer 404 rather than render it.
+    if (isContentBlocked(err)) notFound();
+
     return (
       <Notice
         title="Reader unavailable"
