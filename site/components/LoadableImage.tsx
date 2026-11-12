@@ -1,23 +1,28 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 type Status = "loading" | "ready" | "error";
 
 /**
- * <img> wrapper that shows a spinner while bytes stream in and a graceful
- * placeholder if the upstream CDN refuses the request (these covers come from
- * third-party hosts that answer 403 to a foreign Referer).
+ * <img> wrapper with a skeleton placeholder and a styled fallback.
  *
- * Structure: a wrapper <span> (position: relative) holding the spinner and the
- * image as siblings, so the spinner can cover the image box without changing
- * the image's own layout classes. `pendingClassName` reserves space only while
- * loading — pass an aspect/height there when the box would otherwise be 0px
- * tall before the image arrives.
+ * These covers and pages come from third-party CDNs that answer 403 to a foreign
+ * Referer, drop images when a gallery is pulled upstream, or simply time out. The
+ * wrapper therefore reserves the box while bytes are in flight (a pulsing
+ * skeleton, never a layout shift) and swaps to a branded placeholder if the
+ * request fails — the grid stays aligned either way.
  *
- * The <img> is always emitted during SSR. Cached images can finish before
- * React hydrates (so onLoad never fires) — the mount effect checks the
- * element's own state instead.
+ * Structure: a wrapper <span> (position: relative) holding the placeholder and
+ * the image as siblings, so the skeleton can cover the image box without
+ * changing the image's own layout classes. `pendingClassName` reserves space only
+ * while loading — pass an aspect/height there when the box would otherwise be
+ * 0px tall before the image arrives.
+ *
+ * The <img> is always emitted during SSR. Cached images can finish before React
+ * hydrates (so onLoad never fires) — the mount effect checks the element's own
+ * state instead.
  */
 export default function LoadableImage({
   src,
@@ -45,25 +50,31 @@ export default function LoadableImage({
 
   return (
     <span
-      className={`relative block ${wrapperClassName} ${status === "loading" ? pendingClassName : ""}`}
+      className={[
+        "relative block",
+        wrapperClassName,
+        status === "loading" ? `skeleton ${pendingClassName}` : "",
+      ].join(" ")}
     >
-      {status === "loading" ? (
-        <span aria-hidden className="absolute inset-0 z-10 grid place-items-center">
-          <span className="h-7 w-7 animate-spin rounded-full border-[3px] border-white/15 border-t-accent" />
-        </span>
-      ) : null}
-
       {status === "error" ? (
         <span
           aria-hidden
-          className={`grid min-h-[8rem] place-content-center gap-1 bg-panel2 p-3 text-center ${className}`}
+          className={`grid min-h-[8rem] place-content-center gap-2 border border-line bg-panel2 p-3 text-center ${className}`}
         >
-          <span className="text-lg font-black lowercase tracking-tight text-line">erofox</span>
-          <span className="block text-[10px] font-semibold text-muted">Image unavailable</span>
+          <Image
+            src="/erofox-mark.png"
+            alt=""
+            width={320}
+            height={315}
+            className="mx-auto h-7 w-auto opacity-25"
+          />
+          <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
+            Preview unavailable
+          </span>
         </span>
       ) : (
-        // Hotlinked upstream art: deliberately a plain <img> (no optimizer,
-        // so the referrer policy stays under our control).
+        // Hotlinked upstream art: deliberately a plain <img> (no optimizer, so
+        // the referrer policy stays under our control).
         // eslint-disable-next-line @next/next/no-img-element
         <img
           ref={ref}

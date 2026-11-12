@@ -2,11 +2,18 @@ import Link from "next/link";
 import LoadableImage from "@/components/LoadableImage";
 import type { ComicCard as Card } from "@/lib/source";
 
+/**
+ * Gallery card.
+ *
+ * Every cover sits in the same 3:4 frame and is cropped with object-cover, so no
+ * image stretches and rows stay aligned whatever the source returns. Hover is
+ * limited to a border lift and a 2% scale — no overlay, no glow, no drop shadow.
+ */
 export default function ComicCard({ card, priority = false }: { card: Card; priority?: boolean }) {
   return (
     <Link
       href={`/comic/${card.slug}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-line bg-panel transition duration-200 hover:-translate-y-0.5 hover:border-edge hover:shadow-lift"
+      className="group flex flex-col overflow-hidden rounded-xl border border-line bg-panel transition-colors duration-150 hover:border-edge focus-visible:border-accent"
     >
       <div className="card-cover relative overflow-hidden bg-panel2">
         {card.cover ? (
@@ -14,7 +21,7 @@ export default function ComicCard({ card, priority = false }: { card: Card; prio
             src={card.cover}
             alt={card.title}
             loading={priority ? "eager" : "lazy"}
-            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             wrapperClassName="card-cover"
           />
         ) : (
@@ -24,26 +31,16 @@ export default function ComicCard({ card, priority = false }: { card: Card; prio
         )}
 
         {card.pages ? (
-          <span className="absolute right-1.5 top-1.5 rounded bg-ink/85 px-1.5 py-0.5 text-[10px] font-bold text-fg/85 backdrop-blur">
-            {card.pages} pages
+          <span className="absolute right-1.5 top-1.5 rounded bg-ink/85 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-fg/85 backdrop-blur-sm">
+            {card.pages}p
           </span>
         ) : null}
 
-        {/* Outlined-only label: two dark pills side by side read as one bar on
-            a 150px-wide card, so the source/age label carries no background. */}
         {card.age ? (
-          <span className="absolute left-2 top-2 max-w-[55%] truncate text-[9px] font-bold uppercase tracking-[0.14em] text-white/85 [text-shadow:0_1px_3px_rgba(0,0,0,0.95)]">
+          <span className="absolute left-2 top-2 max-w-[55%] truncate rounded bg-ink/75 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-fg/80 backdrop-blur-sm">
             {card.age}
           </span>
         ) : null}
-
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/0 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-        />
-        <span className="absolute inset-x-2 bottom-2 translate-y-1.5 rounded-md bg-accent py-1.5 text-center text-[11px] font-extrabold text-black opacity-0 transition duration-200 group-hover:translate-y-0 group-hover:opacity-100">
-          Read now
-        </span>
       </div>
 
       <div className="flex flex-1 flex-col gap-1 p-2.5">
