@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect } from "react";
 import { AGE_COOKIE, AGE_COOKIE_MAX_AGE, safeNextPath } from "@/lib/compliance";
 import { SITE_NAME } from "@/lib/constants";
@@ -82,24 +81,6 @@ export default function AgeGate({ next }: { next?: string | null }) {
           <p className="mt-5 text-[11px] leading-relaxed text-muted/75">
             By entering you confirm that viewing adult material is legal in your jurisdiction. Every
             work indexed here is a fictional illustration; no actual human beings are depicted.
-          </p>
-
-          <p className="mt-4 text-[11px] text-muted/60">
-            <Link href="/dmca" className="underline decoration-line underline-offset-2 hover:text-fg">
-              Takedown policy
-            </Link>
-            <span aria-hidden className="mx-1.5">
-              ·
-            </span>
-            <Link href="/terms" className="underline decoration-line underline-offset-2 hover:text-fg">
-              Terms
-            </Link>
-            <span aria-hidden className="mx-1.5">
-              ·
-            </span>
-            <Link href="/privacy" className="underline decoration-line underline-offset-2 hover:text-fg">
-              Privacy
-            </Link>
           </p>
         </div>
       </div>
