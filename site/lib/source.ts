@@ -1,3 +1,10 @@
+import {
+  isContentBlocked,
+  screenDetail,
+  screenListing,
+  screenTagList,
+} from "@/lib/moderation";
+
 export const SOURCES = ["nhentai", "hitomi", "hentaifox", "ehentai", "hdporncomics"] as const;
 
 export type SourceId = (typeof SOURCES)[number];
@@ -166,32 +173,34 @@ async function firstOk<T>(
  * us, changes markup or serves a placeholder page returns 0 cards, not an
  * error, and that is exactly when the fallback should take over.
  */
-export function listLatest(page = 1): Promise<Listing> {
-  return firstOk(
-    (source) => listPage(source, "", page),
-    (listing) => page === 1 && listing.cards.length === 0,
+export async function listLatest(page = 1): Promise<Listing> {
+  return screenListing(
+    await firstOk(
+      (source) => listPage(source, "", page),
+      (listing) => page === 1 && listing.cards.length === 0,
+    ),
   );
 }
 
 /**
  * Tag listing for the active source.
  */
-export function listTag(slug: string, page = 1): Promise<Listing> {
-  return firstOk((source) => listPage(source, `/tag/${slug}`, page));
+export async function listTag(slug: string, page = 1): Promise<Listing> {
+  return screenListing(await firstOk((source) => listPage(source, `/tag/${slug}`, page)));
 }
 
 /**
  * Artist listing for the active source.
  */
-export function listArtist(slug: string, page = 1): Promise<Listing> {
-  return firstOk((source) => listPage(source, `/artist/${slug}`, page));
+export async function listArtist(slug: string, page = 1): Promise<Listing> {
+  return screenListing(await firstOk((source) => listPage(source, `/artist/${slug}`, page)));
 }
 
 /**
  * Search for the active source.
  */
-export function searchComics(query: string, page = 1): Promise<Listing> {
-  return firstOk((source) => listPage(source, "", page, { s: query }));
+export async function searchComics(query: string, page = 1): Promise<Listing> {
+  return screenListing(await firstOk((source) => listPage(source, "", page, { s: query })));
 }
 
 /**
@@ -208,8 +217,11 @@ export async function getComic(pathOrUrl: string): Promise<ComicDetail> {
   // while DOUJIN_API_URL is set, then fall through to the regular chain.
   if (doujinEnabled() && isDoujinRef(pathOrUrl)) {
     try {
-      return await doujinDetail(pathOrUrl);
+      return screenDetail(await doujinDetail(pathOrUrl));
     } catch (err) {
+      // A blocked gallery is a decision, not an outage: never retry it on the
+      // next source and never mark the source unhealthy for it.
+      if (isContentBlocked(err)) throw err;
       problems.push(`doujin: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
@@ -236,8 +248,12 @@ export async function getComic(pathOrUrl: string): Promise<ComicDetail> {
         `${source} detail`,
       );
       noteSuccess(source);
-      return detail;
+      return screenDetail(detail);
     } catch (err) {
+      // Moderation is not a source failure: stop here instead of walking the
+      // rest of the chain and cooling down healthy sources.
+      if (isContentBlocked(err)) throw err;
+
       const message = err instanceof Error ? err.message : String(err);
       // A wrong-source guess (404 / not a ref for this source) says nothing about
       // the source's health, so only real failures are reported.
@@ -256,10 +272,12 @@ export async function getComic(pathOrUrl: string): Promise<ComicDetail> {
 export async function allTags(): Promise<{ slug: string; label: string; count?: number }[]> {
   // Tag rails are cosmetic: fall back to another source, but never let a broken
   // sidebar rest the whole catalogue.
-  return firstOk(
-    (source) => allTagsFor(source),
-    (tags) => tags.length === 0,
-    { report: false },
+  return screenTagList(
+    await firstOk(
+      (source) => allTagsFor(source),
+      (tags) => tags.length === 0,
+      { report: false },
+    ),
   );
 }
 
@@ -267,10 +285,12 @@ export async function allTags(): Promise<{ slug: string; label: string; count?: 
  * Popular tags for the active source (sidebar).
  */
 export async function popularTags(limit = 28): Promise<{ slug: string; count: number }[]> {
-  return firstOk(
-    (source) => popularTagsFor(source, limit),
-    (tags) => tags.length === 0,
-    { report: false },
+  return screenTagList(
+    await firstOk(
+      (source) => popularTagsFor(source, limit),
+      (tags) => tags.length === 0,
+      { report: false },
+    ),
   );
 }
 
