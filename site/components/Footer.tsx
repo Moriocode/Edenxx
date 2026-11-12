@@ -11,8 +11,8 @@ const browse = [
 
 const site = [
   { href: "/terms", label: "Terms of Service" },
-  { href: "/terms#dmca", label: "Rights-holder notices" },
   { href: "/privacy", label: "Privacy Policy" },
+  { href: "/dmca", label: "DMCA & takedowns" },
 ];
 
 export default function Footer() {
@@ -93,7 +93,22 @@ export default function Footer() {
           </nav>
         </div>
 
-        <div className="mt-8 flex flex-col gap-2 border-t border-line pt-6 text-[11px] text-muted sm:flex-row sm:items-center sm:justify-between">
+        <p className="mt-8 border-t border-line pt-6 text-[11px] leading-relaxed text-muted">
+          <span className="font-semibold text-fg/85">18 U.S.C. § 2257 Exemption Notice.</span>{" "}
+          {SITE_NAME} contains solely fictional, illustrated depictions — drawings, comics and
+          computer-generated artwork. No actual human beings are depicted, and we produce, commission
+          or host no such depictions, so this index is exempt from the record-keeping requirements of
+          18 U.S.C. § 2257 and 28 C.F.R. Part 75. Every character is presented as an adult. See the{" "}
+          <Link
+            href="/dmca"
+            className="font-semibold text-fg/80 underline decoration-line underline-offset-2 hover:text-accent"
+          >
+            takedown policy
+          </Link>{" "}
+          for copyright and content reports.
+        </p>
+
+        <div className="mt-6 flex flex-col gap-2 border-t border-line pt-5 text-[11px] text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {year} {SITE_NAME}. All rights to featured artwork belong to their respective owners.
           </p>

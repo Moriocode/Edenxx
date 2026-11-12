@@ -66,7 +66,7 @@ export default function GenreMenu() {
       {open ? (
         <div
           id="genre-menu"
-          className="animate-menu-in absolute left-0 top-full z-50 mt-2 w-[min(calc(100vw-2rem),44rem)] rounded-xl border border-edge bg-panel p-4 shadow-2xl shadow-black/60"
+          className="animate-menu-in absolute left-0 top-full z-50 mt-2 w-[min(calc(100vw-2rem),44rem)] rounded-xl border border-edge bg-panel p-4 shadow-pop"
         >
           <div className="grid gap-5 sm:grid-cols-2">
             {GENRE_GROUPS.map((group) => (

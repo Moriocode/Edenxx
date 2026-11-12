@@ -39,13 +39,13 @@ export default function Error({
         <button
           type="button"
           onClick={reset}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-extrabold text-black transition hover:brightness-110 active:scale-[0.98]"
+          className="btn btn-primary h-10 px-4 text-sm"
         >
           Try again
         </button>
         <Link
           href="/"
-          className="rounded-lg border border-line px-4 py-2 text-sm font-bold text-white/80 transition hover:border-accent/60 hover:text-accent"
+          className="btn h-10 px-4 text-sm"
         >
           Back to latest
         </Link>
