@@ -1,0 +1,4 @@
+{
+  "$comment": "Takedown blocklist. Add {\"id\":\"<slug>\",\"slugs\":[\"<other-slug>\"],\"status\":451,\"reason\":\"DMCA notice — date\",\"requested\":\"YYYY-MM-DD\"} to purge a gallery. Middleware serves 404/451 instead of the page. See lib/takedowns.ts.",
+  "entries": []
+}
