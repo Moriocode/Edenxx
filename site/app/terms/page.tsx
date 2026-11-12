@@ -48,11 +48,18 @@ export default function TermsPage() {
 
       <Section n={3} title="What the Site Is — and Is Not">
         <p>
-          {SITE_NAME} is a search and reading interface. It indexes and displays comics, doujin and
-          manhwa that are published by independent third-party sites, and it links to those sites&rsquo;
-          material. We do not host, upload, own, produce or control that content, and we claim no
-          rights in it. All artwork, characters, titles and text remain the property of their
-          respective authors, publishers and rights holders.
+          <span className="font-bold text-white">Automated index and aggregator.</span> {SITE_NAME}{" "}
+          is an automated search index and aggregator. It catalogues and links to comics, doujin and
+          manhwa published by independent third-party sites, and it displays those works from those
+          sites&rsquo; own servers. {SITE_NAME} does not directly host media files on its own servers,
+          does not accept uploads, and does not own, produce or control the works it indexes. All
+          artwork, characters, titles and text remain the property of their respective authors,
+          publishers and rights holders.
+        </p>
+        <p>
+          Indexing is performed by software that reads publicly available pages. A listing is a
+          convenience pointer to the publisher&rsquo;s page, not a copy of it, and removing a listing
+          never removes the underlying work from the internet.
         </p>
         <p>
           Because content is retrieved live from third parties, we do not guarantee that any
@@ -118,11 +125,18 @@ export default function TermsPage() {
           also our separate 2257 Statement below.
         </p>
         <p className="rounded-lg border border-line bg-panel px-3 py-2 text-[12.5px]">
-          <span className="font-bold text-white">2257 Statement.</span> {SITE_NAME} is not a
-          producer of the content it indexes. We do not create, host or upload any depiction of
-          actual sexually explicit conduct, and we therefore do not maintain records under 18 U.S.C.
-          § 2257. Records for any such content are held by the third-party publishers that produce
-          it and are served from their own domains.
+          <span className="font-bold text-white">18 U.S.C. § 2257 Exemption Notice.</span>{" "}
+          {SITE_NAME} contains solely fictional, illustrated depictions — drawings, comics and
+          computer-generated artwork. No actual human beings are depicted engaging in sexually
+          explicit conduct, and we do not produce, commission or host any such depiction. Because no
+          such depiction is produced by us, {SITE_NAME} is exempt from the record-keeping
+          requirements of 18 U.S.C. § 2257 and 28 C.F.R. Part 75; any records that exist are held by
+          the third-party publishers and served from their own domains. Every character is presented
+          as an adult. Full wording is on the{" "}
+          <a href="/dmca#2257" className="font-semibold text-accent hover:underline">
+            takedown and 2257 page
+          </a>
+          .
         </p>
       </Section>
 

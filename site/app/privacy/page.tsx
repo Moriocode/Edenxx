@@ -68,16 +68,20 @@ export default function PrivacyPage() {
 
       <Section n={3} title="Cookies & Local Storage">
         <p>
-          The Site sets no advertising, cross-site or third-party cookies. The one cookie we do set
-          exists only to count page views (section 5): it holds a random identifier generated when you
-          first arrive, it is marked <span className="font-semibold text-white">HttpOnly</span> so
-          page scripts cannot read it, it is never shared with anyone, and it expires after a year.
-          Clear your cookies and you simply receive a new random identifier.
+          The Site sets no advertising, cross-site or third-party cookies. It sets two first-party
+          cookies. The analytics cookie exists only to count page views (section 5): it holds a random
+          identifier generated when you first arrive, it is marked{" "}
+          <span className="font-semibold text-white">HttpOnly</span> so page scripts cannot read it,
+          it is never shared with anyone, and it expires after a year. Clear it and you simply
+          receive a new random identifier.
         </p>
         <p>
-          We use your browser&rsquo;s local storage for one thing: remembering that you confirmed you
-          are an adult, so the age gate does not reappear on every visit. Clearing your browser
-          storage removes it and the gate will show again.
+          The second cookie, <span className="font-semibold text-white">erofox_age_ok</span>, is set
+          when you confirm that you are an adult. It holds the single value &ldquo;1&rdquo; and no
+          identifier, and it is what allows the server to send you the site instead of the age gate on
+          later visits. It expires after one year. The same confirmation is mirrored into your
+          browser&rsquo;s local storage so the gate can also remember you without a cookie. Clearing
+          either one brings the gate back.
         </p>
       </Section>
 
