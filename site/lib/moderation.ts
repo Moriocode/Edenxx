@@ -18,6 +18,8 @@ import type { ComicCard, ComicDetail, Listing } from "@/lib/source";
  *
  * Matching is token-based, so a tag like "childhood friends" is not caught by
  * the "child" rule, while "lolicon", "loli", "shotacon" and "shotacon" are.
+ * Text is de-obfuscated first, so "l0li", "sh0ta" and "r4pe" are matched as
+ * "loli", "shota" and "rape".
  */
 
 /** Whole tokens that describe a minor in a sexual context. */
@@ -27,6 +29,7 @@ const MINOR_TOKENS = new Set([
   "childlike",
   "underage",
   "preteen",
+  "kodomo",
   "toddler",
   "toddlers",
   "infant",
@@ -46,7 +49,17 @@ const MINOR_TOKENS = new Set([
 const MINOR_PREFIXES = ["loli", "shota", "pedo", "paedo"];
 
 /** Whole tokens describing non-consensual sexual content. */
-const NON_CONSENT_TOKENS = new Set(["snuff", "forced", "drugged"]);
+const NON_CONSENT_TOKENS = new Set([
+  "snuff",
+  "forced",
+  "drugged",
+  // Romaji forms upstreams use for the same material.
+  "goukan",
+  "ryoujoku",
+]);
+
+/** Extreme-risk categories with no legitimate place in an index. */
+const EXTREME_TOKENS = new Set(["bestiality", "zoophilia", "necrophilia"]);
 
 /** Compounds such as rapeplay, noncon, molestation. */
 const NON_CONSENT_PREFIXES = ["rape", "noncon", "molest"];
@@ -64,12 +77,28 @@ const BANNED_PHRASES = [
   "child pornography",
 ];
 
-/** Lower-case, strip accents and punctuation, collapse to single spaces. */
+/** Digits upstreams substitute for letters when evading filters. */
+const LEET_DIGITS: Record<string, string> = {
+  "0": "o",
+  "1": "i",
+  "3": "e",
+  "4": "a",
+  "5": "s",
+};
+
+/**
+ * Lower-case, de-obfuscate, strip accents and punctuation, collapse to single
+ * spaces.
+ *
+ * Leetspeak is folded before punctuation is removed, otherwise "l0li" and
+ * "l.0.l.i" would both lose the signal they are trying to hide.
+ */
 export function normaliseTag(value: string): string {
   return value
     .toLowerCase()
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[01345]/g, (digit) => LEET_DIGITS[digit] ?? digit)
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
 }
@@ -91,6 +120,7 @@ export function blockedTermIn(values: readonly string[]): string | null {
     for (const token of text.split(" ")) {
       if (!token) continue;
       if (MINOR_TOKENS.has(token) || NON_CONSENT_TOKENS.has(token)) return token;
+      if (EXTREME_TOKENS.has(token)) return token;
       if (MINOR_PREFIXES.some((prefix) => token.startsWith(prefix))) return token;
       if (NON_CONSENT_PREFIXES.some((prefix) => token.startsWith(prefix))) return token;
     }
