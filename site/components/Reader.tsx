@@ -7,7 +7,15 @@ import LoadableImage from "@/components/LoadableImage";
 
 type Mode = "strip" | "page";
 
+/** Which way the story runs. Manga is right-to-left, Western comics are not. */
+type Direction = "rtl" | "ltr";
+
+/** How a paged image fills the viewport. */
+type Fit = "width" | "screen";
+
 const MODE_KEY = "erofox-reader-mode";
+const DIRECTION_KEY = "erofox-reader-direction";
+const FIT_KEY = "erofox-reader-fit";
 
 /** Pages ahead of the reader that are fetched before they are needed. */
 const PRELOAD_AHEAD = 3;
@@ -38,7 +46,8 @@ function Chevron({ dir }: { dir: "left" | "right" }) {
  *
  * Both share the same keyboard map, the same persistent progress bar/page
  * counter, and the same three-page lookahead so turning a page never waits on
- * the network. The preference is remembered per browser.
+ * the network. Every preference (mode, direction, fit) is remembered per
+ * browser; direction and fit apply to paged mode only.
  */
 export default function Reader({
   title,
@@ -53,6 +62,8 @@ export default function Reader({
 }) {
   const total = images.length;
   const [mode, setMode] = useState<Mode>("strip");
+  const [direction, setDirection] = useState<Direction>("rtl");
+  const [fit, setFit] = useState<Fit>("width");
   const [current, setCurrent] = useState(() =>
     Math.min(Math.max(1, initialPage), Math.max(1, total)),
   );
@@ -72,23 +83,41 @@ export default function Reader({
     [mode, total],
   );
 
-  // Restore the reader's preferred mode.
+  // Restore the reader's preferred mode, direction and fit.
   useEffect(() => {
     try {
-      const saved = window.localStorage.getItem(MODE_KEY);
-      if (saved === "strip" || saved === "page") setMode(saved);
+      const savedMode = window.localStorage.getItem(MODE_KEY);
+      if (savedMode === "strip" || savedMode === "page") setMode(savedMode);
+      const savedDirection = window.localStorage.getItem(DIRECTION_KEY);
+      if (savedDirection === "rtl" || savedDirection === "ltr") setDirection(savedDirection);
+      const savedFit = window.localStorage.getItem(FIT_KEY);
+      if (savedFit === "width" || savedFit === "screen") setFit(savedFit);
     } catch {
-      /* private mode: stay on the default */
+      /* private mode: stay on the defaults */
     }
   }, []);
 
-  function changeMode(next: Mode) {
-    setMode(next);
+  function remember(key: string, value: string) {
     try {
-      window.localStorage.setItem(MODE_KEY, next);
+      window.localStorage.setItem(key, value);
     } catch {
       /* preference simply won't persist */
     }
+  }
+
+  function changeMode(next: Mode) {
+    setMode(next);
+    remember(MODE_KEY, next);
+  }
+
+  function changeDirection(next: Direction) {
+    setDirection(next);
+    remember(DIRECTION_KEY, next);
+  }
+
+  function changeFit(next: Fit) {
+    setFit(next);
+    remember(FIT_KEY, next);
   }
 
   // After a mode switch (or a ?page= deep link) land on the current page.
@@ -147,17 +176,27 @@ export default function Reader({
         return;
       }
 
+      // In paged RTL reading the arrows follow the artwork, not the text:
+      // left is forward, the way the next page sits in a bound manga.
+      const rtlPaged = mode === "page" && direction === "rtl";
+
       switch (event.key) {
-        case "ArrowRight":
         case "PageDown":
         case " ":
           event.preventDefault();
           goTo(current + 1);
           break;
-        case "ArrowLeft":
         case "PageUp":
           event.preventDefault();
           goTo(current - 1);
+          break;
+        case "ArrowRight":
+          event.preventDefault();
+          goTo(rtlPaged ? current - 1 : current + 1);
+          break;
+        case "ArrowLeft":
+          event.preventDefault();
+          goTo(rtlPaged ? current + 1 : current - 1);
           break;
         case "ArrowDown":
           if (mode === "strip") {
@@ -185,9 +224,19 @@ export default function Reader({
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [current, goTo, mode, total]);
+  }, [current, direction, goTo, mode, total]);
 
   const progress = total ? (current / total) * 100 : 0;
+
+  // Paged artwork: "width" fills the column edge to edge, "screen" fits a whole
+  // page into the viewport so desktop readers never scroll for one image.
+  const pageImageClass =
+    fit === "screen"
+      ? "mx-auto block max-h-[calc(100dvh-8rem)] w-auto max-w-full object-contain"
+      : "mx-auto block max-h-[calc(100dvh-11rem)] w-full object-contain";
+
+  // Right-to-left paging: the left tap zone and ArrowLeft move forward.
+  const leftAdvances = direction === "rtl";
 
   return (
     <div ref={shellRef} className="scroll-mt-28 pb-20">
@@ -230,6 +279,68 @@ export default function Reader({
               Paged
             </button>
           </div>
+
+          {/* Paged-only ergonomics: manga runs right-to-left, and a desktop
+              reader may prefer whole-page fit over full-width. */}
+          {mode === "page" ? (
+            <>
+              <div
+                role="group"
+                aria-label="Reading direction"
+                className="flex shrink-0 items-center gap-0.5 rounded-lg border border-line bg-panel p-0.5"
+              >
+                <button
+                  type="button"
+                  aria-pressed={direction === "rtl"}
+                  onClick={() => changeDirection("rtl")}
+                  title="Right to left (manga, doujinshi)"
+                  className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                    direction === "rtl" ? "bg-panel2 text-fg" : "text-muted hover:text-fg"
+                  }`}
+                >
+                  RTL
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={direction === "ltr"}
+                  onClick={() => changeDirection("ltr")}
+                  title="Left to right (western comics)"
+                  className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                    direction === "ltr" ? "bg-panel2 text-fg" : "text-muted hover:text-fg"
+                  }`}
+                >
+                  LTR
+                </button>
+              </div>
+
+              <div
+                role="group"
+                aria-label="Page fit"
+                className="flex shrink-0 items-center gap-0.5 rounded-lg border border-line bg-panel p-0.5"
+              >
+                <button
+                  type="button"
+                  aria-pressed={fit === "width"}
+                  onClick={() => changeFit("width")}
+                  className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                    fit === "width" ? "bg-panel2 text-fg" : "text-muted hover:text-fg"
+                  }`}
+                >
+                  Fit width
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={fit === "screen"}
+                  onClick={() => changeFit("screen")}
+                  className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                    fit === "screen" ? "bg-panel2 text-fg" : "text-muted hover:text-fg"
+                  }`}
+                >
+                  Fit screen
+                </button>
+              </div>
+            </>
+          ) : null}
 
           <div className="flex shrink-0 items-center gap-1">
             <button
@@ -277,26 +388,27 @@ export default function Reader({
               src={images[current - 1]}
               alt={`${title} — page ${current}`}
               loading="eager"
-              className="mx-auto block max-h-[calc(100dvh-11rem)] w-full object-contain"
+              className={pageImageClass}
               wrapperClassName="w-full"
               pendingClassName="min-h-[70vh]"
             />
 
-            {/* Tap zones: left third back, right third forward. */}
+            {/* Tap zones follow the reading direction: in RTL the left third
+                advances, the way the next page sits in a bound manga. */}
             <button
               type="button"
-              onClick={() => goTo(current - 1)}
-              disabled={current <= 1}
-              aria-label="Previous page"
+              onClick={() => goTo(leftAdvances ? current + 1 : current - 1)}
+              disabled={leftAdvances ? current >= total : current <= 1}
+              aria-label={leftAdvances ? "Next page" : "Previous page"}
               className="reader-zone left-0"
             >
               <Chevron dir="left" />
             </button>
             <button
               type="button"
-              onClick={() => goTo(current + 1)}
-              disabled={current >= total}
-              aria-label="Next page"
+              onClick={() => goTo(leftAdvances ? current - 1 : current + 1)}
+              disabled={leftAdvances ? current <= 1 : current >= total}
+              aria-label={leftAdvances ? "Previous page" : "Next page"}
               className="reader-zone right-0"
             >
               <Chevron dir="right" />
