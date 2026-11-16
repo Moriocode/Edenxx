@@ -1,3 +1,5 @@
+import { isProxyAllowed } from "@/lib/compliance";
+
 export const dynamic = "force-dynamic";
 
 /**
@@ -19,6 +21,9 @@ const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
 
 export async function GET(request: Request) {
+  // Never an open proxy: only our own reader may spend upstream bandwidth.
+  if (!isProxyAllowed(request)) return new Response("Forbidden", { status: 403 });
+
   const raw = new URL(request.url).searchParams.get("u") || "";
 
   let target: URL;

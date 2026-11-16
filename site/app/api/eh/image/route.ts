@@ -1,3 +1,4 @@
+import { isProxyAllowed } from "@/lib/compliance";
 import { ehImageForPage } from "@/lib/sources/ehentai";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +12,9 @@ export const dynamic = "force-dynamic";
  * from our own origin.
  */
 export async function GET(request: Request) {
+  // Never an open proxy: only our own reader may spend upstream bandwidth.
+  if (!isProxyAllowed(request)) return new Response("Forbidden", { status: 403 });
+
   const params = new URL(request.url).searchParams;
   const gid = (params.get("g") || "").replace(/\D/g, "");
   const token = (params.get("t") || "").toLowerCase().replace(/[^0-9a-f]/g, "");
